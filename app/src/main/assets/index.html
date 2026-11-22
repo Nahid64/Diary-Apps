@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diary Apps</title>
+<style>
+:root{--bg:#eef2f1;--card:#fff;--ink:#16252b;--mut:#62767c;--pri:#0b5d57;--pri2:#e3f1ef;--amb:#f2a900;--red:#d62839;--redbg:#fde8ea;--line:#d9e2e1;--ok:#1b8a4b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Noto Sans Bengali","Noto Sans",Roboto,sans-serif}
+#app{display:flex;flex-direction:column;height:100%}
+header{background:var(--pri);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0;flex:1;font-weight:700;letter-spacing:.2px}
+.badge{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--amb);color:#3a2900}
+.badge.free{background:#ffffff33;color:#fff}
+.lang{border:1px solid #ffffff88;background:transparent;color:#fff;border-radius:8px;padding:4px 9px;font-size:13px}
+main{flex:1;overflow:auto;padding:14px 14px 24px}
+nav{display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:8px 2px 7px;font-size:11.5px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:1px}
+nav button span{font-size:19px}
+nav button.on{color:var(--pri);font-weight:700;box-shadow:inset 0 3px 0 var(--pri)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.card.low{border-color:var(--red);background:var(--redbg);border-left:6px solid var(--red)}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mut{color:var(--mut);font-size:13px}.b{font-weight:700}.red{color:var(--red)}.ok{color:var(--ok)}
+.btn{border:0;background:var(--pri);color:#fff;border-radius:10px;padding:9px 14px;font-size:14px;font-weight:600}
+.btn.ghost{background:var(--pri2);color:var(--pri)}.btn.warn{background:var(--redbg);color:var(--red)}.btn.sm{padding:6px 10px;font-size:13px}
+.btn.amb{background:var(--amb);color:#3a2900}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 0}label input,label select{margin-top:3px;color:var(--ink)}
+.chips{display:flex;gap:6px;overflow:auto;margin-bottom:10px;padding-bottom:2px}
+.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;color:var(--ink)}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat small{color:var(--mut);display:block}.stat b{font-size:19px}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:1px 7px;background:var(--pri2);color:var(--pri)}
+.tag.r{background:var(--red);color:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:right;padding:6px 4px;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}
+h2{font-size:17px;margin:4px 0 10px}h3{margin:0 0 6px}
+#modal{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;z-index:9}#modal.open{display:flex}
+.sheet{background:#fff;width:100%;max-height:90%;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#16252b;color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;display:none;z-index:10;max-width:90%}
+.empty{text-align:center;color:var(--mut);padding:28px 10px}
+.inv{font-size:14px}.inv .line{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--line)}
+.plan{border:2px solid var(--line)}.plan.cur{border-color:var(--pri);background:var(--pri2)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;position:sticky;bottom:-16px;background:#fff;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--line)}
+.btn[disabled]{opacity:.5}
+header h1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--pri);border:2px solid #ffffff99;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;flex:0 0 auto;font-size:16px}
+.avatar img{width:100%;height:100%;object-fit:cover}.avatar.big{width:72px;height:72px;font-size:30px;border-color:var(--line);background:var(--pri2)}
+.card .avatar{border-color:var(--line);background:var(--pri2)}
+#auth{position:fixed;inset:0;background:var(--bg);display:none;overflow:auto;z-index:8;padding:20px 20px calc(20px + env(safe-area-inset-bottom))}#auth.open{display:block}.authbox{max-width:420px;margin:0 auto}.alogo{font-size:38px}
+.seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:3px;margin:14px 0}.seg button{flex:1;border:0;background:none;padding:10px;border-radius:9px;font-size:14px;color:var(--mut)}.seg button.on{background:var(--pri);color:#fff;font-weight:700}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><button id="avatar" class="avatar" onclick="openProfile()"></button><h1 id="title">Diary Apps</h1><span id="badge" class="badge"></span><button class="lang" id="langBtn"></button></header>
+  <main id="main"></main>
+  <nav id="nav"></nav>
+</div>
+<div id="auth"></div><div id="modal"></div><div id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+/* ---------- i18n ---------- */
+const T={
+en:{stock:'Stock',ledger:'Ledger',invoice:'Invoice',customers:'Customers',more:'More',search:'Search products',addProduct:'Add product',editProduct:'Edit product',name:'Name',category:'Category',buy:'Purchase price',sell:'Selling price',profit:'Profit',margin:'Margin',qty:'Quantity',weight:'Weight (kg)',size:'Size',courierNote:'Courier notes',save:'Save',cancel:'Cancel',close:'Close',stockIn:'Stock in',stockOut:'Stock out',edit:'Edit',del:'Delete',low:'Low stock',out:'Out of stock',today:'Today',d7:'7 days',d30:'30 days',d90:'90 days',all:'All time',sales:'Sales / income',expenses:'Expenses / stock-in',netProfit:'Net profit',balance:'Cash balance',capital:'Stock capital',target:'Target profit',daily:'Daily',monthly:'Monthly',yearly:'Yearly',period:'Period',addIncome:'Add income',addExpense:'Add expense',amount:'Amount',note:'Note',entries:'Entries',customer:'Customer',phone:'Phone',address:'Address',addItem:'Add product to invoice',delivery:'Delivery charge',subtotal:'Subtotal',total:'Total',preview:'Preview',saveInv:'Save invoice & stock out',courier:'Add to Courier',share:'Share',language:'Language',categories:'Categories',subscription:'Subscription',plan:'Plan',status:'Status',active:'Active',expired:'Expired',trial:'Free trial',free:'Free',proPlan:'Pro',daysLeft:'days left',choose:'Choose',renew:'Renew',current:'Current plan',proOnly:'This feature needs the Pro plan.',upgrade:'View plans',noStock:'Not enough stock',noItems:'Add at least one product',noProducts:'No products yet. Add your first product.',noCust:'No customers yet.',noTx:'No entries in this period.',addCust:'Add customer',walkin:'Walk-in customer',pastInv:'Past invoices',invoiceNo:'Invoice',items:'Items',saved:'Saved',targetMargin:'Target profit margin %',addCat:'Add category',monthlyP:'Monthly',yearlyP:'Yearly',perMonth:'/ month',perYear:'/ year',demoBilling:'Demo billing: plan is activated on this device only. Connect Google Play Billing or your backend in Billing.purchase().',feat:'Plan features',f1:'Products',f2:'Invoices',f3:'Ledger history',f4:'Courier option',unlimited:'Unlimited',cancelSub:'Switch to Free',courierSoon:'Courier booking is not configured yet. This button is ready to connect to a courier service later.',notConfigured:'Not configured',expires:'Expires',backup:'Everything is stored on this phone.',more1:'Settings & subscription',confirmDel:'Delete this item?',totalWeight:'Total weight',sizes:'Sizes',selectCust:'Select customer'},
+bn:{stock:'স্টক',ledger:'হিসাব',invoice:'ইনভয়েস',customers:'কাস্টমার',more:'আরও',search:'পণ্য খুঁজুন',addProduct:'পণ্য যোগ করুন',editProduct:'পণ্য সম্পাদনা',name:'নাম',category:'ক্যাটাগরি',buy:'ক্রয়মূল্য',sell:'বিক্রয়মূল্য',profit:'লাভ',margin:'মার্জিন',qty:'পরিমাণ',weight:'ওজন (কেজি)',size:'সাইজ',courierNote:'কুরিয়ার নোট',save:'সংরক্ষণ',cancel:'বাতিল',close:'বন্ধ',stockIn:'স্টক ইন',stockOut:'স্টক আউট',edit:'এডিট',del:'মুছুন',low:'স্টক কম',out:'স্টক শেষ',today:'আজ',d7:'৭ দিন',d30:'৩০ দিন',d90:'৯০ দিন',all:'সব সময়',sales:'বিক্রি / আয়',expenses:'খরচ / স্টক-ইন',netProfit:'নিট লাভ',balance:'ক্যাশ ব্যালেন্স',capital:'স্টক মূলধন',target:'লক্ষ্য লাভ',daily:'দৈনিক',monthly:'মাসিক',yearly:'বার্ষিক',period:'সময়',addIncome:'আয় যোগ',addExpense:'খরচ যোগ',amount:'টাকা',note:'নোট',entries:'লেনদেন',customer:'কাস্টমার',phone:'ফোন',address:'ঠিকানা',addItem:'ইনভয়েসে পণ্য যোগ করুন',delivery:'ডেলিভারি চার্জ',subtotal:'সাবটোটাল',total:'মোট',preview:'প্রিভিউ',saveInv:'ইনভয়েস সেভ ও স্টক আউট',courier:'কুরিয়ারে যোগ করুন',share:'শেয়ার',language:'ভাষা',categories:'ক্যাটাগরি',subscription:'সাবস্ক্রিপশন',plan:'প্ল্যান',status:'অবস্থা',active:'সক্রিয়',expired:'মেয়াদ শেষ',trial:'ফ্রি ট্রায়াল',free:'ফ্রি',proPlan:'প্রো',daysLeft:'দিন বাকি',choose:'বেছে নিন',renew:'রিনিউ',current:'বর্তমান প্ল্যান',proOnly:'এই ফিচারের জন্য প্রো প্ল্যান লাগবে।',upgrade:'প্ল্যান দেখুন',noStock:'পর্যাপ্ত স্টক নেই',noItems:'কমপক্ষে একটি পণ্য যোগ করুন',noProducts:'এখনও কোনো পণ্য নেই। প্রথম পণ্য যোগ করুন।',noCust:'এখনও কোনো কাস্টমার নেই।',noTx:'এই সময়ে কোনো লেনদেন নেই।',addCust:'কাস্টমার যোগ',walkin:'সরাসরি ক্রেতা',pastInv:'আগের ইনভয়েস',invoiceNo:'ইনভয়েস',items:'পণ্য',saved:'সংরক্ষিত',targetMargin:'লক্ষ্য লাভের হার %',addCat:'ক্যাটাগরি যোগ',monthlyP:'মাসিক',yearlyP:'বার্ষিক',perMonth:'/ মাস',perYear:'/ বছর',demoBilling:'ডেমো বিলিং: প্ল্যান শুধু এই ফোনে চালু হয়। Billing.purchase() এ Google Play Billing বা আপনার ব্যাকএন্ড যুক্ত করুন।',feat:'প্ল্যানের সুবিধা',f1:'পণ্য',f2:'ইনভয়েস',f3:'হিসাবের ইতিহাস',f4:'কুরিয়ার অপশন',unlimited:'সীমাহীন',cancelSub:'ফ্রি-তে ফিরুন',courierSoon:'কুরিয়ার বুকিং এখনও কনফিগার করা হয়নি। পরে কুরিয়ার সার্ভিসের সাথে যুক্ত করার জন্য বাটনটি প্রস্তুত।',notConfigured:'কনফিগার করা নেই',expires:'মেয়াদ',backup:'সব তথ্য এই ফোনেই সংরক্ষিত।',more1:'সেটিংস ও সাবস্ক্রিপশন',confirmDel:'এটি মুছে ফেলবেন?',totalWeight:'মোট ওজন',sizes:'সাইজ',selectCust:'কাস্টমার বাছুন'}};
+Object.assign(T.en,{more:'Settings',business:'Shop details',shopName:'Shop name',searchCust:'Search customers',custHint:'Customers are saved automatically when you save an invoice. Add one by hand only for regular buyers.',invCount:'invoices',billed:'billed',newInvoice:'New invoice',editCust:'Edit customer',
+courierSettings:'Courier settings',courierHelp:'Enter the details from your courier merchant account. They are stored only on this phone. Check your courier\'s API guide for the exact URL.',configured:'Configured',setup:'Set up',showSecrets:'Show secrets',clear:'Clear',
+print:'Print',png:'Image',pdf:'PDF',savedTo:'Saved to',failed:'Could not save',saveFirst:'Save the invoice first',invoiceTitle:'INVOICE',billTo:'Bill to',desc:'Description',unitPrice:'Price',thanks:'Thank you for your business.',sign:'Authorized signature',
+parcel:'Parcel details',cod:'Cash to collect (COD)',tracking:'Tracking / consignment ID',saveBooking:'Save courier booking',courierNote2:'Your courier credentials are saved. Sending parcels automatically through the courier API is not connected yet, so enter the tracking ID by hand for now.',courierLbl:'Courier',
+payTo:'Send money to',sendExact:'Send exactly',copy:'Copy',copied:'Number copied',method:'Payment method',yourNumber:'Your sending number',trxId:'Transaction ID (TrxID)',amountSent:'Amount sent',reference:'Reference (name or shop name)',
+payNote:'Copy the TrxID from your payment SMS. Your plan stays Free until our team confirms the payment.',submitPay:'Submit payment',pending:'Pending',pendingMsg:'Payment submitted. Waiting for approval.',pendingTitle:'Waiting for approval',pendingBody:'Your plan stays Free until the payment is confirmed.',
+notSent:'Not sent yet. It will be sent automatically when you are online.',rejected:'Rejected',rejectedBody:'Your last payment was not approved.',checkStatus:'Check status',statusUpdated:'Status updated',invalidNumber:'Enter a valid mobile number like 01XXXXXXXXX',invalidTrx:'Enter the Transaction ID (letters and numbers only)',invalidAmt:'Enter the amount you sent',
+notSetup:'Payment service is not set up yet.',netErr:'No internet connection.',netSaved:'No internet. Request saved and will be sent automatically.',trxUsed:'This Transaction ID was already used.',pendingExists:'You already have a pending request.',accountId:'Account ID',support:'Support',included:'Included'});
+Object.assign(T.bn,{more:'সেটিংস',business:'দোকানের তথ্য',shopName:'দোকানের নাম',searchCust:'কাস্টমার খুঁজুন',custHint:'ইনভয়েস সেভ করলে কাস্টমার নিজে থেকেই সংরক্ষিত হয়। নিয়মিত ক্রেতাদের জন্য শুধু প্রয়োজনে হাতে যোগ করুন।',invCount:'টি ইনভয়েস',billed:'মোট বিল',newInvoice:'নতুন ইনভয়েস',editCust:'কাস্টমার এডিট',
+courierSettings:'কুরিয়ার সেটিংস',courierHelp:'আপনার কুরিয়ার মার্চেন্ট অ্যাকাউন্টের তথ্য দিন। তথ্য শুধু এই ফোনে থাকে। সঠিক URL এর জন্য কুরিয়ারের API গাইড দেখুন।',configured:'কনফিগার করা',setup:'সেট আপ',showSecrets:'গোপন তথ্য দেখান',clear:'মুছুন',
+print:'প্রিন্ট',png:'ছবি',pdf:'পিডিএফ',savedTo:'সংরক্ষিত হয়েছে',failed:'সংরক্ষণ করা যায়নি',saveFirst:'আগে ইনভয়েস সেভ করুন',invoiceTitle:'ইনভয়েস',billTo:'বিল প্রাপক',desc:'বিবরণ',unitPrice:'দাম',thanks:'আপনার কেনাকাটার জন্য ধন্যবাদ।',sign:'অনুমোদিত স্বাক্ষর',
+parcel:'পার্সেলের তথ্য',cod:'আদায়যোগ্য টাকা (COD)',tracking:'ট্র্যাকিং / কনসাইনমেন্ট আইডি',saveBooking:'কুরিয়ার বুকিং সেভ করুন',courierNote2:'আপনার কুরিয়ারের তথ্য সংরক্ষিত আছে। কুরিয়ার API দিয়ে স্বয়ংক্রিয় পার্সেল পাঠানো এখনও যুক্ত হয়নি, তাই আপাতত ট্র্যাকিং আইডি হাতে লিখুন।',courierLbl:'কুরিয়ার',
+payTo:'যে নম্বরে টাকা পাঠাবেন',sendExact:'ঠিক এই পরিমাণ পাঠান',copy:'কপি',copied:'নম্বর কপি হয়েছে',method:'পেমেন্ট মাধ্যম',yourNumber:'আপনার যে নম্বর থেকে পাঠিয়েছেন',trxId:'ট্রানজেকশন আইডি (TrxID)',amountSent:'পাঠানো টাকা',reference:'রেফারেন্স (নাম বা দোকানের নাম)',
+payNote:'পেমেন্টের এসএমএস থেকে TrxID কপি করুন। আমাদের টিম পেমেন্ট নিশ্চিত না করা পর্যন্ত আপনার প্ল্যান ফ্রি থাকবে।',submitPay:'পেমেন্ট জমা দিন',pending:'অপেক্ষমাণ',pendingMsg:'পেমেন্ট জমা হয়েছে। অনুমোদনের অপেক্ষায় আছে।',pendingTitle:'অনুমোদনের অপেক্ষায়',pendingBody:'পেমেন্ট নিশ্চিত না হওয়া পর্যন্ত আপনার প্ল্যান ফ্রি থাকবে।',
+notSent:'এখনও পাঠানো হয়নি। ইন্টারনেট পেলে নিজে থেকেই পাঠানো হবে।',rejected:'বাতিল',rejectedBody:'আপনার শেষ পেমেন্টটি অনুমোদিত হয়নি।',checkStatus:'অবস্থা দেখুন',statusUpdated:'অবস্থা আপডেট হয়েছে',invalidNumber:'সঠিক মোবাইল নম্বর দিন, যেমন 01XXXXXXXXX',invalidTrx:'ট্রানজেকশন আইডি দিন (শুধু ইংরেজি অক্ষর ও সংখ্যা)',invalidAmt:'কত টাকা পাঠিয়েছেন তা লিখুন',
+notSetup:'পেমেন্ট সার্ভিস এখনও চালু করা হয়নি।',netErr:'ইন্টারনেট সংযোগ নেই।',netSaved:'ইন্টারনেট নেই। অনুরোধ সংরক্ষিত আছে, পরে নিজে থেকেই পাঠানো হবে।',trxUsed:'এই ট্রানজেকশন আইডি আগেই ব্যবহার করা হয়েছে।',pendingExists:'আপনার একটি অনুরোধ আগে থেকেই অপেক্ষমাণ।',accountId:'অ্যাকাউন্ট আইডি',support:'সাপোর্ট',included:'অন্তর্ভুক্ত'});
+Object.assign(T.en,{loginSub:'Log in with your mobile number to use Diary Apps.',login:'Log in',createAcct:'Create account',phoneNo:'Mobile number',pin:'PIN (4–6 digits)',confirmPin:'Confirm PIN',pinHint:'Choose a PIN you will remember. You need it to log in on another device.',pinRule:'PIN must be 4 to 6 digits',pinMismatch:'PINs do not match',
+errBadPin:'Wrong PIN',errNotFound:'No account for this number. Tap "Create account".',errExists:'This number already has an account. Tap "Log in".',errPinNotSet:'No PIN is set for this number. Tap "Create account" to set one.',errTooMany:'Too many wrong attempts. Try again in 15 minutes.',errDeviceLocked:'This number\'s plan is active on another device. Contact support to allow more devices.',errSession:'You were logged out (logged in elsewhere, or reset). Please log in again.',errLogoBig:'Logo is too large',
+profileSetup:'Your business profile',editProfile:'Edit profile',profile:'Profile',profileHint:'This appears on every invoice you create.',bizName:'Business name',bizPhone:'Business phone',chooseLogo:'Choose logo',removeLogo:'Remove',bizNameReq:'Enter your business name',bizPhoneReq:'Enter your business phone',loginNumber:'Login number',logout:'Log out',logoutAsk:'Log out of this device?',
+wipeAsk:'This phone has shop data from another account. Erase it for the new account?',wipeYes:'Erase',wipeNo:'Keep',deviceNote:'A paid plan works on the device that paid. To use it on more devices, contact support.',multiOn:'Multi-device allowed'});
+Object.assign(T.bn,{loginSub:'ডায়েরি অ্যাপস ব্যবহার করতে মোবাইল নম্বর দিয়ে লগইন করুন।',login:'লগইন',createAcct:'অ্যাকাউন্ট খুলুন',phoneNo:'মোবাইল নম্বর',pin:'পিন (৪–৬ সংখ্যা)',confirmPin:'পিন আবার দিন',pinHint:'মনে রাখতে পারবেন এমন পিন দিন। অন্য ডিভাইসে লগইন করতে এটি লাগবে।',pinRule:'পিন ৪ থেকে ৬ সংখ্যার হতে হবে',pinMismatch:'দুটি পিন মেলেনি',
+errBadPin:'পিন ভুল হয়েছে',errNotFound:'এই নম্বরে কোনো অ্যাকাউন্ট নেই। "অ্যাকাউন্ট খুলুন" চাপুন।',errExists:'এই নম্বরে আগেই অ্যাকাউন্ট আছে। "লগইন" চাপুন।',errPinNotSet:'এই নম্বরে পিন সেট করা নেই। "অ্যাকাউন্ট খুলুন" চেপে পিন দিন।',errTooMany:'অনেকবার ভুল হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।',errDeviceLocked:'এই নম্বরের প্ল্যান অন্য ডিভাইসে চালু আছে। একাধিক ডিভাইসের জন্য সাপোর্টে যোগাযোগ করুন।',errSession:'আপনাকে লগআউট করা হয়েছে (অন্য জায়গায় লগইন বা রিসেট)। আবার লগইন করুন।',errLogoBig:'লোগো খুব বড়',
+profileSetup:'আপনার ব্যবসার প্রোফাইল',editProfile:'প্রোফাইল এডিট',profile:'প্রোফাইল',profileHint:'এটি আপনার প্রতিটি ইনভয়েসে দেখাবে।',bizName:'ব্যবসার নাম',bizPhone:'ব্যবসার ফোন',chooseLogo:'লোগো বাছুন',removeLogo:'সরান',bizNameReq:'ব্যবসার নাম দিন',bizPhoneReq:'ব্যবসার ফোন নম্বর দিন',loginNumber:'লগইন নম্বর',logout:'লগআউট',logoutAsk:'এই ডিভাইস থেকে লগআউট করবেন?',
+wipeAsk:'এই ফোনে অন্য অ্যাকাউন্টের দোকানের ডেটা আছে। নতুন অ্যাকাউন্টের জন্য তা মুছে ফেলবেন?',wipeYes:'মুছুন',wipeNo:'রাখুন',deviceNote:'পেইড প্ল্যান যে ডিভাইসে পেমেন্ট হয়েছে সেখানেই চলে। আরও ডিভাইসে চালাতে সাপোর্টে যোগাযোগ করুন।',multiOn:'একাধিক ডিভাইস অনুমোদিত'});
+const t=k=>(T[S.lang]||T.en)[k]||T.en[k]||k;
+
+/* ---------- state ---------- */
+const LS='diaryapps_v1',DAY=864e5;
+const $=s=>document.querySelector(s);
+let S=JSON.parse(localStorage.getItem(LS)||'null')||{lang:'en',margin:20,cats:['General','Clothing','Grocery','Electronics'],products:[],customers:[],txns:[],invoices:[],seq:1,
+  sub:{v2:1,plan:'free',expiry:0}};
+const save=()=>localStorage.setItem(LS,JSON.stringify(S));
+S.biz=S.biz||{name:'',phone:'',addr:''};S.biz.logo=S.biz.logo||'';S.acct=S.acct||null;S.couriers=S.couriers||{};S.req=S.req||null;S.dev=S.dev||'';
+if(!S.sub||!S.sub.v2)S.sub={v2:1,plan:'free',expiry:0}; // trial / demo plans from older builds are no longer valid
+const uid=()=>S.seq++;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>'৳'+(Math.round((+n||0)*100)/100).toLocaleString('en-US');
+const fdate=ts=>new Date(ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const LOW=5;
+
+/* ---------- subscription model ---------- */
+const CFG=window.APP_CONFIG||{};
+const PLANS={free:{price:0,days:0},monthly:{price:(CFG.PLAN_PRICES||{}).monthly||199,days:30},yearly:{price:(CFG.PLAN_PRICES||{}).yearly||1999,days:365}};
+const LIM={products:20,invoices:10,ledgerDays:30};
+function uuid(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=crypto.getRandomValues(new Uint8Array(1))[0]&15;return(c==='x'?r:(r&3|8)).toString(16)})}
+if(!S.dev){S.dev=uuid();save()}
+// Free is the default. A paid plan is active only when the backend (Supabase) has approved it.
+function subState(){
+  const s=S.sub;if(s.plan==='free'||!s.expiry)return{plan:'free',st:'free',left:0};
+  const left=Math.ceil((s.expiry-Date.now())/DAY);
+  return{plan:s.plan,st:left>0?'active':'expired',left:Math.max(left,0)};
+}
+const tier=()=>subState().st==='active'?'pro':'free';
+const PENDING=()=>!!(S.req&&S.req.status==='pending');
+const planName=p=>p==='monthly'?t('monthlyP')+' Pro':p==='yearly'?t('yearlyP')+' Pro':t('free');
+function upsell(){modal(`<h3>🔒 ${t('subscription')}</h3><p>${t('proOnly')}</p><div class="btns"><button class="btn ghost" onclick="closeM()">${t('close')}</button><button class="btn amb" onclick="closeM();openView('sub')">${t('upgrade')}</button></div>`)}
+
+/* ---------- backend (Supabase) + account ---------- */
+async function rpc(fn,args){
+  if(!CFG.SUPABASE_URL||!CFG.SUPABASE_ANON_KEY)throw new Error('not_configured');
+  const h={'Content-Type':'application/json',apikey:CFG.SUPABASE_ANON_KEY};
+  if(/^eyJ/.test(CFG.SUPABASE_ANON_KEY))h.Authorization='Bearer '+CFG.SUPABASE_ANON_KEY;
+  let r;try{r=await fetch(CFG.SUPABASE_URL.replace(/\/+$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',headers:h,body:JSON.stringify(args)})}catch(e){throw new Error('network')}
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw new Error((j&&(j.message||j.error))||('http_'+r.status));
+  return j;
+}
+const ERR={bad_phone:'invalidNumber',bad_pin_format:'pinRule',bad_pin:'errBadPin',not_found:'errNotFound',phone_exists:'errExists',pin_not_set:'errPinNotSet',too_many:'errTooMany',device_locked:'errDeviceLocked',session_invalid:'errSession',logo_too_big:'errLogoBig',bad_install:'netErr'};
+const errMsg=e=>{const m=e.message||'';if(m==='not_configured')return t('notSetup');if(m==='network')return t('netErr');
+  for(const k in ERR)if(m.indexOf(k)>=0)return t(ERR[k]);
+  return/trx_used/.test(m)?t('trxUsed'):/pending_exists/.test(m)?t('pendingExists'):/invalid_sender/.test(m)?t('invalidNumber'):/invalid_trx/.test(m)?t('invalidTrx'):m};
+// Manual edits in Supabase may be typed loosely ("Monthly Pro", "Active"): normalise before use.
+const normPlan=p=>{p=String(p||'').trim().toLowerCase();return(!p||p==='free')?'free':/year|annual/.test(p)?'yearly':'monthly'};
+const normPhone=s=>String(s||'').replace(/[\s-]/g,'').replace(/^\+?88/,'');
+const logged=()=>!!(S.acct&&S.acct.token);
+
+async function pushReq(r){
+  try{await rpc('app_submit_payment',{p_phone:S.acct.phone,p_token:S.acct.token,p_plan:r.plan,p_amount:r.amount,p_method:String(r.method).toLowerCase(),p_sender:r.sender,p_trx:r.trx,p_reference:r.reference||''});r.synced=true}
+  catch(e){if(/pending_exists/.test(e.message))r.synced=true;else throw e}
+}
+async function pushProfile(){
+  const b=S.biz,r=await rpc('app_save_profile',{p_phone:S.acct.phone,p_token:S.acct.token,p_name:b.name||'',p_bphone:b.phone||'',p_addr:b.addr||'',p_logo:b.logo||''});
+  if(r&&r.ok===false)throw new Error(r.error||'profile');
+  S.profileDirty=false;
+}
+// Reads plan / approval result from the backend. Only here can a paid plan become Active.
+function applyStatus(r){
+  const plan=normPlan(r.plan),st=String(r.status||'').trim().toLowerCase();
+  S.sub=(plan!=='free'&&r.expires_at)?{v2:1,plan,expiry:Date.parse(r.expires_at)||0}:{v2:1,plan:'free',expiry:0};
+  if(st==='pending'||st==='rejected'){
+    const rp=normPlan(r.requested_plan);
+    S.req={...(S.req||{}),plan:rp==='free'?((S.req&&S.req.plan)||'monthly'):rp,status:st,note:r.admin_note||'',trx:r.trx_id||(S.req&&S.req.trx),synced:true,ts:Date.parse(r.updated_at)||Date.now()};
+  }else if(S.req&&S.req.synced)S.req=null; // approved: the plan itself now shows it
+  S.multi=!!r.allow_multi;
+}
+let syncing=false;
+async function syncSub(silent){
+  if(!logged()||syncing)return;syncing=true;
+  try{
+    if(S.req&&S.req.status==='pending'&&!S.req.synced)await pushReq(S.req);
+    if(S.profileDirty)await pushProfile().catch(e=>{if(/session_invalid/.test(e.message))throw e});
+    const r=await rpc('app_status',{p_phone:S.acct.phone,p_token:S.acct.token});
+    if(!r||r.ok===false){if(r&&r.error==='session_invalid')return forceLogout('errSession');throw new Error((r&&r.error)||'bad_response')}
+    applyStatus(r);
+    S.syncInfo={ts:Date.now(),ok:true,msg:`plan=${r.plan}, status=${r.status}, expires=${r.expires_at?String(r.expires_at).slice(0,10):'—'}`};
+    save();render();if(!silent)toast(t('statusUpdated'));
+  }catch(e){
+    if(/session_invalid/.test(e.message))return forceLogout('errSession');
+    S.syncInfo={ts:Date.now(),ok:false,msg:e.message};save();if(!silent)toast(errMsg(e));if(tab==='more'&&view==='sub')render();
+  }finally{syncing=false}
+}
+function copyText(x){const ta=document.createElement('textarea');ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();toast(t('copied'))}
+
+/* ---------- in-app confirm (WebView ignores window.confirm) ---------- */
+let _ask=null;
+function ask(msg,yes,no,yl,nl){_ask={yes,no};modal(`<p style="font-size:16px">${esc(msg)}</p><div class="btns"><button class="btn ghost" onclick="askDone(false)">${nl||t('cancel')}</button><button class="btn warn" onclick="askDone(true)">${yl||t('del')}</button></div>`,true)}
+function askDone(ok){const a=_ask;_ask=null;closeM();if(a){const f=ok?a.yes:a.no;if(f)f()}}
+
+/* ---------- login (phone + PIN), profile ---------- */
+let authMode='login';
+function showAuth(msg){closeM();$('#auth').classList.add('open');authView(authMode,msg)}
+function hideAuth(){$('#auth').classList.remove('open')}
+function authView(mode,msg){
+  const ph=($('#a_ph')||{}).value||'';authMode=mode;
+  $('#auth').innerHTML=`<div class="authbox"><div class="between"><div class="alogo">📒</div><button class="lang" style="background:var(--pri)" onclick="S.lang=S.lang==='en'?'bn':'en';save();authView(authMode)">${S.lang==='en'?'বাংলা':'EN'}</button></div>
+  <h2 style="font-size:24px;margin:10px 0 2px">Diary Apps</h2><div class="mut">${t('loginSub')}</div>
+  <div class="seg"><button class="${mode==='login'?'on':''}" onclick="authView('login')">${t('login')}</button><button class="${mode==='create'?'on':''}" onclick="authView('create')">${t('createAcct')}</button></div>
+  <label>${t('phoneNo')}<input id="a_ph" type="tel" inputmode="numeric" maxlength="14" placeholder="01XXXXXXXXX" value="${esc(ph)}"></label>
+  <label>${t('pin')}<input id="a_pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+  ${mode==='create'?`<label>${t('confirmPin')}<input id="a_pin2" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label><p class="mut">${t('pinHint')}</p>`:''}
+  <div id="a_err" class="red" style="min-height:22px;margin:10px 0">${esc(msg||'')}</div>
+  <button class="btn" style="width:100%;padding:12px" id="a_btn" onclick="doAuth()">${t(mode==='login'?'login':'createAcct')}</button></div>`;
+}
+const deviceModel=()=>{const m=(navigator.userAgent||'').match(/;\s*([^;)]+?)\s+Build/);return(m?m[1]:'Android').slice(0,60)};
+async function doAuth(){
+  const ph=normPhone($('#a_ph').value),pin=$('#a_pin').value.trim(),err=m=>{$('#a_err').textContent=m};
+  if(!/^01[3-9]\d{8}$/.test(ph))return err(t('invalidNumber'));
+  if(!/^\d{4,6}$/.test(pin))return err(t('pinRule'));
+  if(authMode==='create'&&pin!==$('#a_pin2').value.trim())return err(t('pinMismatch'));
+  const b=$('#a_btn');b.disabled=true;err('');
+  try{
+    const r=await rpc('app_login',{p_phone:ph,p_pin:pin,p_install:S.dev,p_model:deviceModel(),p_create:authMode==='create'});
+    if(!r||!r.ok){b.disabled=false;return err(t(ERR[r&&r.error]||'netErr'))}
+    afterLogin(ph,r);
+  }catch(e){b.disabled=false;err(errMsg(e))}
+}
+function afterLogin(ph,r){
+  const prev=S.lastPhone,other=prev&&prev!==ph;
+  const finish=()=>{
+    S.acct={phone:ph,token:r.token};S.lastPhone=ph;
+    if(other){S.biz={name:'',phone:'',addr:'',logo:''};S.req=null}
+    const p=r.profile||{};
+    S.biz.name=S.biz.name||p.name||'';S.biz.phone=S.biz.phone||p.phone||ph;S.biz.addr=S.biz.addr||p.address||'';S.biz.logo=S.biz.logo||p.logo||'';
+    applyStatus(r.status||{});save();primeLogo();render();
+    profileForm(true); // business name / logo / phone are asked at the start of every login
+  };
+  const hasData=S.products.length||S.invoices.length||S.txns.length;
+  if(other&&hasData)ask(t('wipeAsk'),()=>{S.products=[];S.customers=[];S.txns=[];S.invoices=[];finish()},finish,t('wipeYes'),t('wipeNo'));
+  else finish();
+}
+function forceLogout(key){S.acct=null;S.req=null;S.sub={v2:1,plan:'free',expiry:0};save();render();showAuth(key?t(key):'')}
+function askLogout(){ask(t('logoutAsk'),doLogout,null,t('logout'))}
+async function doLogout(){const a=S.acct;S.acct=null;S.req=null;S.sub={v2:1,plan:'free',expiry:0};save();try{if(a)await rpc('app_logout',{p_phone:a.phone,p_token:a.token})}catch(e){}render();showAuth('')}
+
+const avatarInner=(logo,name)=>logo?`<img src="${logo}" alt="">`:esc(((name||'D').trim()[0]||'D').toUpperCase());
+let LOGO_IMG=null,tmpLogo='';
+function primeLogo(){LOGO_IMG=null;if(S.biz&&S.biz.logo){const im=new Image();im.onload=()=>{LOGO_IMG=im};im.src=S.biz.logo}}
+function profileForm(first){
+  const b=S.biz;tmpLogo=b.logo||'';
+  modal(`<h3>${t(first?'profileSetup':'editProfile')}</h3><div class="mut">${t('profileHint')}</div>
+  <div class="between" style="justify-content:flex-start;gap:12px;margin:10px 0"><div id="pf_prev" class="avatar big">${avatarInner(tmpLogo,b.name)}</div>
+  <div class="btns" style="margin:0"><button class="btn sm ghost" onclick="$('#pf_file').click()">${t('chooseLogo')}</button><button class="btn sm warn" onclick="setLogo('')">${t('removeLogo')}</button></div></div>
+  <input id="pf_file" type="file" accept="image/*" style="display:none" onchange="pickLogo(this)">
+  <label>${t('bizName')} *<input id="pf_name" value="${esc(b.name)}"></label>
+  <label>${t('bizPhone')} *<input id="pf_phone" type="tel" value="${esc(b.phone)}"></label>
+  <label>${t('address')}<input id="pf_addr" value="${esc(b.addr)}"></label>
+  <div class="btns">${first?'':`<button class="btn ghost" onclick="closeM()">${t('cancel')}</button>`}<button class="btn" onclick="saveProfile(${first?1:0})">${t('save')}</button></div>`,!!first);
+}
+function pickLogo(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{const im=new Image();
+    im.onload=()=>{const M=256,sc=Math.min(1,M/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),h=Math.max(1,Math.round(im.height*sc)),c=document.createElement('canvas');c.width=w;c.height=h;
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);
+      let q=.85,d=c.toDataURL('image/jpeg',q);while(d.length>70000&&q>.3){q-=.15;d=c.toDataURL('image/jpeg',q)}setLogo(d)};
+    im.onerror=()=>toast(t('failed'));im.src=rd.result};
+  rd.readAsDataURL(f);
+}
+function setLogo(d){tmpLogo=d;$('#pf_prev').innerHTML=avatarInner(d,$('#pf_name').value)}
+async function saveProfile(first){
+  const name=$('#pf_name').value.trim(),ph=$('#pf_phone').value.trim(),addr=$('#pf_addr').value.trim();
+  if(!name){toast(t('bizNameReq'));return $('#pf_name').focus()}
+  if(ph.replace(/\D/g,'').length<6){toast(t('bizPhoneReq'));return $('#pf_phone').focus()}
+  S.biz={name,phone:ph,addr,logo:tmpLogo};S.profileDirty=true;save();primeLogo();closeM();hideAuth();render();toast(t('saved'));
+  try{await pushProfile();save()}catch(e){if(/session_invalid/.test(e.message))return forceLogout('errSession')}
+  if(first)syncSub(true);
+}
+function openProfile(){
+  const b=S.biz,s=subState();
+  modal(`<div style="text-align:center"><div class="avatar big" style="margin:0 auto">${avatarInner(b.logo,b.name)}</div><h3 style="margin:8px 0 0">${esc(b.name||'Diary Apps')}</h3><div class="mut">${esc(b.phone||'')}${b.addr?'<br>'+esc(b.addr):''}</div></div>
+  <div class="card" style="margin-top:12px"><div class="between"><span class="mut">${t('loginNumber')}</span><b>${esc(S.acct?S.acct.phone:'')}</b></div><div class="between"><span class="mut">${t('plan')}</span><b>${planName(s.st==='active'?s.plan:'free')}${PENDING()?' ⏳':''}</b></div></div>
+  <div class="btns"><button class="btn" onclick="profileForm(false)">✎ ${t('editProfile')}</button><button class="btn ghost" onclick="closeM();openView('sub')">⭐ ${t('subscription')}</button></div>
+  <div class="btns"><button class="btn warn" onclick="askLogout()">⎋ ${t('logout')}</button><button class="btn ghost" onclick="closeM()">${t('close')}</button></div>`);
+}
+
+/* ---------- ui helpers ---------- */
+let tab='stock',view=null,D={cust:'',phone:'',addr:'',items:[],delivery:0};
+const tabs=[['stock','📦'],['ledger','📒'],['invoice','🧾'],['customers','👥'],['more','⚙️']];
+let lockM=false;
+function modal(h,lock){lockM=!!lock;$('#modal').innerHTML=`<div class="sheet">${h}</div>`;$('#modal').classList.add('open')}
+function closeM(){$('#modal').classList.remove('open')}
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2600)}
+function go(k){tab=k;view=null;render()}
+function openView(v){tab='more';view=v;render()}
+window.onBack=()=>{if($('#modal').classList.contains('open')){if(!lockM)closeM();return true}if($('#auth').classList.contains('open'))return false;if(view){view=view.indexOf('courier:')===0?'courier':null;render();return true}if(tab!=='stock'){go('stock');return true}return false};
+$('#langBtn').onclick=()=>{S.lang=S.lang==='en'?'bn':'en';save();render()};
+$('#modal').onclick=e=>{if(e.target.id==='modal'&&!lockM)closeM()};
+
+function render(){
+  document.documentElement.lang=S.lang==='bn'?'bn':'en';
+  $('#langBtn').textContent=S.lang==='en'?'বাংলা':'EN';
+  $('#avatar').innerHTML=avatarInner(S.biz.logo,S.biz.name);$('#title').textContent=S.biz.name||'Diary Apps';
+  const p=tier()==='pro';$('#badge').textContent=p?'PRO':'FREE';$('#badge').className='badge'+(p?'':' free');
+  $('#nav').innerHTML=tabs.map(([k,i])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')"><span>${i}</span>${t(k)}</button>`).join('');
+  ({stock:vStock,ledger:vLedger,invoice:vInvoice,customers:vCust,more:vMore})[tab]();
+}
+
+/* ---------- STOCK ---------- */
+function vStock(){
+  $('#main').innerHTML=`<div class="between" style="margin-bottom:10px"><input id="q" placeholder="🔍 ${t('search')}" oninput="plist()" style="flex:1"><button class="btn" onclick="pForm()">＋</button></div><div id="plist"></div>`;
+  plist();
+}
+function plist(){
+  const q=($('#q')?.value||'').toLowerCase();
+  const ps=S.products.filter(p=>!q||(p.name+p.cat).toLowerCase().includes(q))
+    .sort((a,b)=>((a.qty<LOW)?0:1)-((b.qty<LOW)?0:1)||(a.qty<LOW?a.qty-b.qty:a.name.localeCompare(b.name)));
+  $('#plist').innerHTML=ps.length?ps.map(p=>{
+    const low=p.qty<LOW,pr=p.sell-p.buy,mg=p.buy?pr/p.buy*100:0;
+    return `<div class="card ${low?'low':''}"><div class="between"><div><div class="b ${low?'red':''}">${esc(p.name)}</div><div class="mut">${esc(p.cat)}${p.size?' · '+esc(p.size):''}${p.weight?' · '+p.weight+' kg':''}</div></div>
+    <div style="text-align:right"><span class="tag ${low?'r':''}">${p.qty}</span>${low?`<div class="red b" style="font-size:12px">⚠ ${t(p.qty<=0?'out':'low')}</div>`:''}</div></div>
+    <div class="mut" style="margin-top:6px">${t('buy')}: ${money(p.buy)} → ${t('sell')}: ${money(p.sell)} · <b class="${pr>=0?'ok':'red'}">${t('profit')} ${money(pr)} (${mg.toFixed(0)}%)</b></div>
+    ${p.note?`<div class="mut">🚚 ${esc(p.note)}</div>`:''}
+    <div class="btns"><button class="btn sm" onclick="mv(${p.id},'in')">＋ ${t('stockIn')}</button><button class="btn sm ghost" onclick="mv(${p.id},'out')">－ ${t('stockOut')}</button><button class="btn sm ghost" onclick="pForm(${p.id})">${t('edit')}</button><button class="btn sm warn" onclick="delP(${p.id})">${t('del')}</button></div></div>`}).join(''):`<div class="empty">${t('noProducts')}</div>`;
+}
+function pForm(id){
+  const p=S.products.find(x=>x.id===id)||{name:'',cat:S.cats[0],buy:'',sell:'',qty:0,weight:'',size:'',note:''};
+  if(!id&&tier()==='free'&&S.products.length>=LIM.products)return upsell();
+  modal(`<h3>${t(id?'editProduct':'addProduct')}</h3>
+  <label>${t('name')}<input id="f_name" value="${esc(p.name)}"></label>
+  <label>${t('category')}<select id="f_cat">${S.cats.map(c=>`<option ${c===p.cat?'selected':''}>${esc(c)}</option>`).join('')}</select></label>
+  <div class="row"><label>${t('buy')}<input id="f_buy" type="number" inputmode="decimal" value="${p.buy}" oninput="calc('b')"></label><label>${t('sell')}<input id="f_sell" type="number" inputmode="decimal" value="${p.sell}" oninput="calc('s')"></label></div>
+  <div class="row"><label>${t('profit')} ৳<input id="f_pr" type="number" inputmode="decimal" oninput="calc('p')"></label><label>${t('margin')} %<input id="f_mg" type="number" inputmode="decimal" oninput="calc('m')"></label></div>
+  <div class="row"><label>${t('qty')}<input id="f_qty" type="number" inputmode="numeric" value="${p.qty}"></label><label>${t('weight')}<input id="f_w" type="number" inputmode="decimal" value="${p.weight}"></label></div>
+  <label>${t('size')}<input id="f_size" value="${esc(p.size)}"></label>
+  <label>${t('courierNote')}<input id="f_note" value="${esc(p.note)}"></label>
+  <div class="btns"><button class="btn ghost" onclick="closeM()">${t('cancel')}</button><button class="btn" onclick="saveP(${id||0})">${t('save')}</button></div>`);
+  calc('b');
+}
+function calc(src){
+  const g=i=>parseFloat($('#f_'+i).value)||0;const b=g('buy');let s=g('sell');
+  if(src==='p')s=b+g('pr');else if(src==='m')s=b+b*g('mg')/100;
+  if(src==='p'||src==='m')$('#f_sell').value=+s.toFixed(2);
+  if(src!=='p')$('#f_pr').value=+(s-b).toFixed(2);
+  if(src!=='m')$('#f_mg').value=b?+((s-b)/b*100).toFixed(1):0;
+}
+function saveP(id){
+  const g=i=>$('#f_'+i).value.trim(),n=g('name');if(!n)return $('#f_name').focus();
+  const o={name:n,cat:g('cat'),buy:+g('buy')||0,sell:+g('sell')||0,qty:parseInt(g('qty'))||0,weight:g('w'),size:g('size'),note:g('note')};
+  if(id)Object.assign(S.products.find(x=>x.id===id),o);else S.products.push({id:uid(),...o});
+  save();closeM();render();toast(t('saved'));
+}
+function delP(id){ask(t('confirmDel'),()=>{S.products=S.products.filter(p=>p.id!==id);save();render()})}
+function mv(id,dir){
+  const p=S.products.find(x=>x.id===id);
+  modal(`<h3>${t(dir==='in'?'stockIn':'stockOut')} — ${esc(p.name)}</h3><div class="mut">${t('qty')}: ${p.qty}</div>
+  <label>${t('qty')}<input id="m_q" type="number" inputmode="numeric" value="1"></label>
+  ${dir==='in'?`<label>${t('buy')}<input id="m_c" type="number" inputmode="decimal" value="${p.buy}"></label>`:`<div class="mut" style="margin-top:8px">${t('sell')}: ${money(p.sell)}</div>`}
+  <div class="btns"><button class="btn ghost" onclick="closeM()">${t('cancel')}</button><button class="btn" onclick="doMv(${id},'${dir}')">${t('save')}</button></div>`);
+}
+function doMv(id,dir){
+  const p=S.products.find(x=>x.id===id),n=parseInt($('#m_q').value)||0;if(n<=0)return;
+  if(dir==='in'){const c=parseFloat($('#m_c').value);const cost=isNaN(c)?p.buy:c;p.qty+=n;p.buy=cost;
+    S.txns.push({id:uid(),ts:Date.now(),type:'expense',kind:'stockin',amt:n*cost,note:`${p.name} ×${n}`});}
+  else{if(n>p.qty)return toast(t('noStock'));p.qty-=n;
+    S.txns.push({id:uid(),ts:Date.now(),type:'income',kind:'stockout',amt:n*p.sell,cogs:n*p.buy,note:`${p.name} ×${n}`});}
+  save();closeM();render();
+}
+
+/* ---------- LEDGER ---------- */
+S.f=S.f||1;S.grp=S.grp||'d';
+const from=d=>{if(d==='all')return 0;if(d===1){const x=new Date();x.setHours(0,0,0,0);return+x}return Date.now()-d*DAY};
+function setF(d){const days=d==='all'?9999:d;if(tier()==='free'&&days>LIM.ledgerDays)return upsell();S.f=d;save();render()}
+function vLedger(){
+  const f=S.f,tx=S.txns.filter(x=>x.ts>=from(f)).sort((a,b)=>b.ts-a.ts);
+  const sum=(a,fn)=>a.reduce((s,x)=>s+fn(x),0);
+  const sales=sum(tx.filter(x=>x.type==='income'),x=>x.amt),exp=sum(tx.filter(x=>x.type==='expense'),x=>x.amt);
+  const cogs=sum(tx,x=>x.cogs||0),opex=sum(tx.filter(x=>x.type==='expense'&&x.kind!=='stockin'),x=>x.amt);
+  const profit=sales-cogs-opex,bal=sales-exp,cap=sum(S.products,p=>p.buy*p.qty),tgt=sales*S.margin/100;
+  const chips=[[1,'today'],[7,'d7'],[30,'d30'],[90,'d90'],['all','all']].map(([d,k])=>`<button class="chip ${f===d?'on':''}" onclick="setF(${typeof d==='string'?`'${d}'`:d})">${t(k)}</button>`).join('');
+  const key=x=>{const d=new Date(x.ts),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return S.grp==='y'?`${y}`:S.grp==='m'?`${y}-${m}`:`${y}-${m}-${dd}`};
+  const G={};tx.forEach(x=>{const k=key(x),g=G[k]=G[k]||{s:0,e:0,c:0,o:0};if(x.type==='income')g.s+=x.amt;else{g.e+=x.amt;if(x.kind!=='stockin')g.o+=x.amt}g.c+=x.cogs||0});
+  const rows=Object.keys(G).sort().reverse().map(k=>{const g=G[k],p=g.s-g.c-g.o;return`<tr><td>${k}</td><td>${money(g.s)}</td><td>${money(g.e)}</td><td class="${p>=0?'ok':'red'}">${money(p)}</td></tr>`}).join('');
+  $('#main').innerHTML=`<div class="chips">${chips}</div>
+  <div class="grid"><div class="stat"><small>${t('sales')}</small><b class="ok">${money(sales)}</b></div><div class="stat"><small>${t('expenses')}</small><b class="red">${money(exp)}</b></div>
+  <div class="stat"><small>${t('netProfit')}</small><b class="${profit>=0?'ok':'red'}">${money(profit)}</b></div><div class="stat"><small>${t('balance')}</small><b>${money(bal)}</b></div>
+  <div class="stat"><small>${t('capital')}</small><b>${money(cap)}</b></div><div class="stat"><small>${t('target')} (${S.margin}%)</small><b>${money(tgt)}</b></div></div>
+  <div class="btns" style="margin:0 0 10px"><button class="btn sm" onclick="txForm('income')">＋ ${t('addIncome')}</button><button class="btn sm warn" onclick="txForm('expense')">－ ${t('addExpense')}</button></div>
+  <div class="card"><div class="chips" style="margin-bottom:6px">${[['d','daily'],['m','monthly'],['y','yearly']].map(([k,l])=>`<button class="chip ${S.grp===k?'on':''}" onclick="S.grp='${k}';save();render()">${t(l)}</button>`).join('')}</div>
+  ${rows?`<table><tr><th>${t('period')}</th><th>${t('sales')}</th><th>${t('expenses')}</th><th>${t('profit')}</th></tr>${rows}</table>`:`<div class="empty">${t('noTx')}</div>`}</div>
+  <h2>${t('entries')}</h2>${tx.slice(0,40).map(x=>`<div class="card between"><div><div class="b">${esc(x.note||x.kind||'')}</div><div class="mut">${fdate(x.ts)}</div></div><b class="${x.type==='income'?'ok':'red'}">${x.type==='income'?'+':'−'}${money(x.amt)}</b></div>`).join('')}`;
+}
+function txForm(type){
+  modal(`<h3>${t(type==='income'?'addIncome':'addExpense')}</h3><label>${t('amount')}<input id="t_a" type="number" inputmode="decimal"></label><label>${t('note')}<input id="t_n"></label>
+  <div class="btns"><button class="btn ghost" onclick="closeM()">${t('cancel')}</button><button class="btn" onclick="saveTx('${type}')">${t('save')}</button></div>`);
+}
+function saveTx(type){const a=parseFloat($('#t_a').value);if(!(a>0))return;S.txns.push({id:uid(),ts:Date.now(),type,kind:'manual',amt:a,note:$('#t_n').value.trim()});save();closeM();render()}
+
+/* ---------- INVOICE ---------- */
+let curInv=null;
+const INV_CSS=`.paper{background:#fff;color:#111;border:1px solid #bfc9c7;padding:20px 18px;font-family:Georgia,"Noto Serif Bengali","Noto Sans Bengali",serif;font-size:14px;line-height:1.4;min-width:300px}
+.paper .ph{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.paper .brand{display:flex;gap:10px;align-items:center}.paper .lg{width:56px;height:56px;object-fit:contain}
+.paper .shop{font-size:21px;font-weight:700}.paper .ti{text-align:right}
+.paper .inv-t{font-size:24px;font-weight:700;letter-spacing:3px}
+.paper .sm{font-size:12.5px;color:#444}
+.paper .rule{border-top:2px solid #111;border-bottom:1px solid #111;height:3px;margin:12px 0}
+.paper .pb{display:flex;justify-content:space-between;gap:12px;margin-bottom:14px}
+.paper .lb{font-size:12px;color:#666;font-style:italic}
+.paper .it{width:100%;border-collapse:collapse}
+.paper .it th{background:#eceff0;border-top:1px solid #111;border-bottom:1px solid #111;padding:6px 5px;text-align:right;font-size:12.5px}
+.paper .it td{padding:6px 5px;border-bottom:1px solid #d6dcdc;text-align:right}
+.paper .it th:first-child,.paper .it td:first-child{text-align:left}
+.paper .tot{margin:12px 0 0 auto;width:62%}
+.paper .tot div{display:flex;justify-content:space-between;padding:3px 0}
+.paper .tot .g{border-top:2px solid #111;border-bottom:2px solid #111;font-weight:700;font-size:16px;margin-top:4px;padding:6px 0}
+.paper .ft{display:flex;justify-content:space-between;align-items:flex-end;margin-top:34px;gap:12px}
+.paper .sg{border-top:1px solid #111;padding-top:4px;font-size:12px;min-width:120px;text-align:center;color:#444}
+.paper .th{font-style:italic;font-size:12.5px;color:#444;text-align:right}`;
+document.head.insertAdjacentHTML('beforeend','<style>'+INV_CSS+'</style>');
+
+function calcInv(){
+  let sub=0,w=0;const sz=new Set();
+  D.items.forEach(i=>{const p=S.products.find(x=>x.id===i.pid);if(!p)return;sub+=p.sell*i.qty;w+=(+p.weight||0)*i.qty;if(p.size)sz.add(p.size)});
+  return{sub,w,sizes:[...sz].join(', '),total:sub+(+D.delivery||0)};
+}
+function vInvoice(){
+  const c=calcInv();
+  $('#main').innerHTML=`<div class="card"><label style="margin-top:0">${t('customer')}<select onchange="pickCust(this.value)"><option value="">${t('selectCust')}</option>${S.customers.map(x=>`<option value="${x.id}">${esc(x.name)}${x.phone?' · '+esc(x.phone):''}</option>`).join('')}</select></label>
+  <label>${t('name')}<input value="${esc(D.cust)}" onchange="D.cust=this.value"></label>
+  <div class="row"><label>${t('phone')}<input type="tel" value="${esc(D.phone)}" onchange="D.phone=this.value"></label><label>${t('address')}<input value="${esc(D.addr)}" onchange="D.addr=this.value"></label></div></div>
+  <div class="card"><label style="margin-top:0">${t('addItem')}<select onchange="addItem(this.value)"><option value="">＋</option>${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} — ${money(p.sell)} (${p.qty})</option>`).join('')}</select></label>
+  ${D.items.map((i,ix)=>{const p=S.products.find(x=>x.id===i.pid);if(!p)return'';return`<div class="between" style="margin-top:8px"><div><div class="b">${esc(p.name)}</div><div class="mut">${money(p.sell)}${p.weight?' · '+p.weight+' kg':''}${p.size?' · '+esc(p.size):''}</div></div>
+  <div class="btns" style="margin:0;align-items:center"><button class="btn sm ghost" onclick="chQty(${ix},-1)">−</button><b>${i.qty}</b><button class="btn sm ghost" onclick="chQty(${ix},1)">＋</button></div></div>`}).join('')}
+  <label>${t('delivery')} ৳<input type="number" inputmode="decimal" value="${D.delivery||''}" onchange="D.delivery=+this.value||0;render()"></label></div>
+  <div class="card"><div class="between"><span>${t('subtotal')}</span><b>${money(c.sub)}</b></div><div class="between"><span>${t('totalWeight')}</span><b>${c.w.toFixed(2)} kg</b></div>${c.sizes?`<div class="between"><span>${t('sizes')}</span><b>${esc(c.sizes)}</b></div>`:''}<div class="between" style="font-size:18px;margin-top:4px"><span>${t('total')}</span><b class="ok">${money(c.total)}</b></div></div>
+  <div class="btns" style="margin-bottom:14px"><button class="btn ghost" onclick="previewDraft()">${t('preview')}</button><button class="btn" onclick="saveInv()">${t('saveInv')}</button></div>
+  <h2>${t('pastInv')}</h2>${S.invoices.length?S.invoices.slice().reverse().map(v=>`<div class="card between" onclick="showInv(${v.id})"><div><div class="b">#${v.no} · ${esc(v.cust||t('walkin'))}</div><div class="mut">${fdate(v.ts)}${v.courier?' · 🚚 '+esc(v.courier.name):''}</div></div><b>${money(v.total)}</b></div>`).join(''):`<div class="empty">—</div>`}`;
+}
+function pickCust(id){const c=S.customers.find(x=>x.id==id);if(c){D.cust=c.name;D.phone=c.phone;D.addr=c.address}render()}
+function addItem(id){if(!id)return;id=+id;const i=D.items.find(x=>x.pid===id);if(i)i.qty++;else D.items.push({pid:id,qty:1});render()}
+function chQty(ix,d){D.items[ix].qty+=d;if(D.items[ix].qty<=0)D.items.splice(ix,1);render()}
+function snapshot(){
+  const c=calcInv();
+  return{cust:D.cust.trim(),phone:D.phone.trim(),addr:D.addr.trim(),delivery:+D.delivery||0,sub:c.sub,weight:c.w,sizes:c.sizes,total:c.total,biz:{name:S.biz.name,phone:S.biz.phone,addr:S.biz.addr},
+    items:D.items.map(i=>{const p=S.products.find(x=>x.id===i.pid);return{pid:p.id,name:p.name,price:p.sell,cost:p.buy,qty:i.qty,weight:p.weight,size:p.size}})};
+}
+function paperHTML(v){
+  const b=(v.biz&&v.biz.name)?v.biz:S.biz,lg=S.biz.logo;
+  return`<div class="paper"><div class="ph"><div class="brand">${lg?`<img class="lg" src="${lg}">`:''}<div><div class="shop">${esc(b.name||'Diary Apps')}</div><div class="sm">${esc(b.addr||'')}${b.addr&&b.phone?'<br>':''}${esc(b.phone||'')}</div></div></div>
+  <div class="ti"><div class="inv-t">${t('invoiceTitle')}</div><div class="sm">${v.no?'No: #'+v.no:'DRAFT'}<br>${fdate(v.ts||Date.now())}</div></div></div><div class="rule"></div>
+  <div class="pb"><div><div class="lb">${t('billTo')}</div><b style="font-size:16px">${esc(v.cust||t('walkin'))}</b><div class="sm">${esc(v.phone||'')}${v.phone&&v.addr?'<br>':''}${esc(v.addr||'')}</div></div>
+  <div class="sm" style="text-align:right">${t('totalWeight')}: ${(+v.weight||0).toFixed(2)} kg${v.sizes?'<br>'+t('sizes')+': '+esc(v.sizes):''}</div></div>
+  <table class="it"><thead><tr><th>${t('desc')}</th><th>${t('qty')}</th><th>${t('unitPrice')}</th><th>${t('amount')}</th></tr></thead><tbody>
+  ${v.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td><td>${money(i.price*i.qty)}</td></tr>`).join('')}</tbody></table>
+  <div class="tot"><div><span>${t('subtotal')}</span><span>${money(v.sub)}</span></div><div><span>${t('delivery')}</span><span>${money(v.delivery)}</span></div><div class="g"><span>${t('total')}</span><span>${money(v.total)}</span></div></div>
+  <div class="ft"><div class="sg">${t('sign')}</div><div class="th">${t('thanks')}</div></div></div>`;
+}
+const printDoc=v=>`<!DOCTYPE html><html><head><meta charset="utf-8"><style>@page{size:A4;margin:12mm}html,body{margin:0;background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}${INV_CSS}.paper{font-size:15px}</style></head><body>${paperHTML(v)}</body></html>`;
+function invText(v){
+  return[`${t('invoiceNo')} ${v.no?'#'+v.no:''} — ${(v.biz&&v.biz.name)||'Diary Apps'}`,fdate(v.ts||Date.now()),`${v.cust||t('walkin')} ${v.phone||''}`,v.addr||'','',
+    ...v.items.map(i=>`${i.name} × ${i.qty} = ${money(i.price*i.qty)}`),`${t('totalWeight')}: ${(+v.weight).toFixed(2)} kg`,`${t('delivery')}: ${money(v.delivery)}`,`${t('total')}: ${money(v.total)}`].join('\n');
+}
+/* picture of the invoice (used for PNG / JPG / PDF download) */
+function drawInvoice(v){
+  const W=800,P=44,n=v.items.length,RH=36,top=290,H=top+266+n*RH;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const F=(sz,w,st)=>`${st||''} ${w||'normal'} ${sz}px Georgia,"Noto Serif Bengali","Noto Sans Bengali",serif`;
+  const fit=(s,mw)=>{s=String(s);if(x.measureText(s).width<=mw)return s;while(s.length>1&&x.measureText(s+'…').width>mw)s=s.slice(0,-1);return s+'…'};
+  const wrap=(s,mw,max)=>{const out=[];let line='';String(s||'').split(/\s+/).filter(Boolean).forEach(w=>{const tst=line?line+' '+w:w;if(x.measureText(tst).width>mw&&line){out.push(line);line=w}else line=tst});if(line)out.push(line);return out.slice(0,max)};
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+  const b=(v.biz&&v.biz.name)?v.biz:S.biz,lg=(LOGO_IMG&&S.biz.logo)?LOGO_IMG:null,nx=lg?P+78:P;
+  x.textAlign='left';x.fillStyle='#111';x.font=F(30,'bold');if(lg){const s=Math.min(66/lg.width,66/lg.height);x.drawImage(lg,P,P-6,lg.width*s,lg.height*s)}x.fillText(fit(b.name||'Diary Apps',430-(nx-P)),nx,P+30);
+  x.font=F(15);x.fillStyle='#444';let y=P+56;wrap(b.addr,430-(nx-P),2).forEach(l=>{x.fillText(l,nx,y);y+=20});if(b.phone)x.fillText(b.phone,nx,y);
+  x.textAlign='right';x.fillStyle='#111';x.font=F(32,'bold');x.fillText(t('invoiceTitle'),W-P,P+30);
+  x.font=F(15);x.fillStyle='#444';x.fillText(v.no?'No: #'+v.no:'DRAFT',W-P,P+58);x.fillText(fdate(v.ts||Date.now()),W-P,P+80);
+  x.fillStyle='#111';x.fillRect(P,150,W-2*P,3);x.fillRect(P,157,W-2*P,1);
+  x.textAlign='left';x.font=F(14,'normal','italic');x.fillStyle='#666';x.fillText(t('billTo'),P,186);
+  x.fillStyle='#111';x.font=F(20,'bold');x.fillText(fit(v.cust||t('walkin'),380),P,212);
+  x.font=F(15);x.fillStyle='#444';let yy=234;if(v.phone){x.fillText(v.phone,P,yy);yy+=20}wrap(v.addr,380,2).forEach(l=>{x.fillText(l,P,yy);yy+=20});
+  x.textAlign='right';x.fillText(`${t('totalWeight')}: ${(+v.weight||0).toFixed(2)} kg`,W-P,212);if(v.sizes)x.fillText(fit(`${t('sizes')}: ${v.sizes}`,300),W-P,234);
+  x.fillStyle='#eceff0';x.fillRect(P,top,W-2*P,36);x.fillStyle='#111';x.fillRect(P,top,W-2*P,1);x.fillRect(P,top+35,W-2*P,1);
+  x.font=F(15,'bold');x.textAlign='left';x.fillText(t('desc'),P+8,top+24);x.textAlign='right';x.fillText(t('qty'),470,top+24);x.fillText(t('unitPrice'),620,top+24);x.fillText(t('amount'),W-P-8,top+24);
+  let ty=top+36;
+  v.items.forEach(i=>{x.font=F(16);x.fillStyle='#111';x.textAlign='left';x.fillText(fit(i.name,340),P+8,ty+24);x.textAlign='right';x.fillText(String(i.qty),470,ty+24);x.fillText(money(i.price),620,ty+24);x.fillText(money(i.price*i.qty),W-P-8,ty+24);x.fillStyle='#d6dcdc';x.fillRect(P,ty+RH-1,W-2*P,1);ty+=RH});
+  ty+=20;const lx=430,rx=W-P;x.fillStyle='#111';x.font=F(16);
+  x.textAlign='left';x.fillText(t('subtotal'),lx,ty+16);x.textAlign='right';x.fillText(money(v.sub),rx,ty+16);
+  x.textAlign='left';x.fillText(t('delivery'),lx,ty+44);x.textAlign='right';x.fillText(money(v.delivery),rx,ty+44);
+  x.fillRect(lx,ty+60,rx-lx,2);x.fillRect(lx,ty+100,rx-lx,2);x.font=F(20,'bold');x.textAlign='left';x.fillText(t('total'),lx,ty+88);x.textAlign='right';x.fillText(money(v.total),rx,ty+88);
+  const fy=ty+170;x.fillRect(P,fy,200,1);x.textAlign='left';x.font=F(13);x.fillStyle='#444';x.fillText(t('sign'),P,fy+20);x.textAlign='right';x.font=F(14,'normal','italic');x.fillText(t('thanks'),W-P,fy+20);
+  return c;
+}
+function previewDraft(){if(!D.items.length)return toast(t('noItems'));showInvObj({ts:Date.now(),...snapshot()})}
+function saveInv(){
+  if(!D.items.length)return toast(t('noItems'));
+  if(tier()==='free'&&S.invoices.length>=LIM.invoices)return upsell();
+  for(const i of D.items){const p=S.products.find(x=>x.id===i.pid);if(!p||p.qty<i.qty)return toast(`${t('noStock')}: ${p?p.name:''}`)}
+  const v={id:uid(),no:S.invoices.length+1001,ts:Date.now(),...snapshot()};
+  v.custId=upsertCust(v);
+  let cogs=0;D.items.forEach(i=>{const p=S.products.find(x=>x.id===i.pid);p.qty-=i.qty;cogs+=p.buy*i.qty});
+  S.invoices.push(v); // delivery charge is not counted as shop income (it is passed to the courier)
+  S.txns.push({id:uid(),ts:v.ts,type:'income',kind:'invoice',amt:v.sub,cogs,note:`${t('invoiceNo')} #${v.no}`});
+  D={cust:'',phone:'',addr:'',items:[],delivery:0};save();render();showInv(v.id);
+}
+function upsertCust(v){ // customers are created automatically from invoices
+  const nm=v.cust,ph=v.phone;if(!nm&&!ph)return 0;
+  let c=S.customers.find(x=>(ph&&x.phone===ph)||(!ph&&x.name.toLowerCase()===nm.toLowerCase()));
+  if(!c){c={id:uid(),name:nm||ph,phone:ph,address:v.addr};S.customers.push(c)}
+  else{if(!c.phone&&ph)c.phone=ph;if(!c.address&&v.addr)c.address=v.addr}
+  return c.id;
+}
+function showInv(id){showInvObj(S.invoices.find(x=>x.id===id))}
+function showInvObj(v){
+  curInv=v;
+  modal(`<div style="overflow-x:auto">${paperHTML(v)}</div>${v.courier?`<div class="card" style="margin-top:10px">🚚 <b>${esc(v.courier.name)}</b>${v.courier.tracking?' · '+esc(v.courier.tracking):''}</div>`:''}
+  <div class="bar"><button class="btn" onclick="printInv()">🖨 ${t('print')}</button><button class="btn ghost" onclick="dlInv('png')">⬇ ${t('png')}</button><button class="btn ghost" onclick="dlInv('pdf')">⬇ ${t('pdf')}</button><button class="btn ghost" onclick="shareInv()">${t('share')}</button>${v.id?`<button class="btn amb" onclick="courier()">🚚 ${t('courier')}</button>`:''}<button class="btn ghost" onclick="closeM()">${t('close')}</button></div>`);
+}
+function printInv(){
+  const v=curInv;if(!v)return;
+  if(window.Android&&Android.print)Android.print(printDoc(v),'Invoice-'+(v.no||'draft'));else window.print();
+}
+function dlInv(kind){
+  const v=curInv;if(!v)return;const name='Invoice-'+(v.no||'draft')+'-'+new Date().toISOString().slice(0,10);
+  const png=drawInvoice(v).toDataURL('image/png');
+  if(window.Android&&Android.saveFile){const r=String(Android.saveFile(png.split(',')[1],name,kind));toast(r.indexOf('ok:')===0?t('savedTo')+' '+r.slice(3):t('failed')+' '+r.slice(4))}
+  else if(kind==='pdf')window.print();
+  else{const a=document.createElement('a');a.href=png;a.download=name+'.png';document.body.appendChild(a);a.click();a.remove()}
+}
+function shareInv(){const x=invText(curInv);
+  if(window.Android&&Android.share)Android.share(x);else if(navigator.share)navigator.share({text:x});else toast(x)}
+
+/* ---------- COURIER (invoice side) ---------- */
+function courierName(id){const c=COURIERS.find(x=>x.id===id);return id==='custom'?((S.couriers.custom||{}).label||c.name):c.name}
+function courier(){
+  if(!curInv||!curInv.id)return toast(t('saveFirst'));
+  if(tier()==='free')return upsell();
+  modal(`<h3>🚚 ${t('courier')}</h3>${COURIERS.map(c=>{const ok=isConf(c.id);return`<div class="card between"><div><b>${esc(courierName(c.id))}</b><div style="margin-top:3px"><span class="tag ${ok?'':'r'}">${ok?t('configured'):t('notConfigured')}</span></div></div>${ok?`<button class="btn sm" onclick="parcel('${c.id}')">${t('choose')}</button>`:`<button class="btn sm ghost" onclick="closeM();openView('courier:${c.id}')">${t('setup')}</button>`}</div>`}).join('')}
+  <div class="btns"><button class="btn ghost" onclick="showInvObj(curInv)">${t('cancel')}</button></div>`);
+}
+function parcel(cid){
+  const v=curInv;
+  modal(`<h3>🚚 ${esc(courierName(cid))}</h3><div class="card"><div class="b">${t('parcel')}</div><div class="mut" style="margin-top:4px;line-height:1.6">${esc(v.cust||t('walkin'))} · ${esc(v.phone||'—')}<br>${esc(v.addr||'—')}<br>${t('totalWeight')}: ${(+v.weight||0).toFixed(2)} kg${v.sizes?' · '+esc(v.sizes):''}<br>${t('cod')}: <b>${money(v.total)}</b></div></div>
+  <label>${t('tracking')}<input id="cr_t" value="${esc((v.courier&&v.courier.tracking)||'')}"></label><p class="mut">${t('courierNote2')}</p>
+  <div class="btns"><button class="btn ghost" onclick="courier()">${t('cancel')}</button><button class="btn" onclick="saveBooking('${cid}')">${t('saveBooking')}</button></div>`);
+}
+function saveBooking(cid){curInv.courier={id:cid,name:courierName(cid),tracking:$('#cr_t').value.trim(),ts:Date.now()};save();render();showInvObj(curInv);toast(t('saved'))}
+
+/* ---------- CUSTOMERS ---------- */
+let custQ='';
+function custStats(c){const l=S.invoices.filter(v=>v.custId===c.id);return{n:l.length,sum:l.reduce((s,v)=>s+v.total,0)}}
+function vCust(){
+  $('#main').innerHTML=`<div class="between" style="margin-bottom:10px"><input id="cq" placeholder="🔍 ${t('searchCust')}" value="${esc(custQ)}" oninput="custQ=this.value;clist()" style="flex:1"><button class="btn" onclick="cForm()">＋</button></div>
+  <div class="mut" style="margin-bottom:10px">${t('custHint')}</div><div id="clist"></div>`;
+  clist();
+}
+function clist(){
+  const q=custQ.toLowerCase(),cs=S.customers.filter(c=>!q||(c.name+c.phone+c.address).toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  $('#clist').innerHTML=cs.length?cs.map(c=>{const st=custStats(c);return`<div class="card"><div class="between"><div><div class="b">${esc(c.name)}</div><div class="mut">${c.phone?`<a href="tel:${esc(c.phone)}" style="color:var(--pri)">${esc(c.phone)}</a>`:''}${c.phone&&c.address?' · ':''}${esc(c.address)}</div></div>
+  <div style="text-align:right"><span class="tag">${st.n} ${t('invCount')}</span><div class="mut">${money(st.sum)} ${t('billed')}</div></div></div>
+  <div class="btns"><button class="btn sm" onclick="custInvoice(${c.id})">🧾 ${t('newInvoice')}</button><button class="btn sm ghost" onclick="cForm(${c.id})">${t('edit')}</button><button class="btn sm warn" onclick="delC(${c.id})">${t('del')}</button></div></div>`}).join(''):`<div class="empty">${t('noCust')}</div>`;
+}
+function cForm(id){
+  const c=S.customers.find(x=>x.id===id)||{name:'',phone:'',address:''};
+  modal(`<h3>${t(id?'editCust':'addCust')}</h3><label>${t('name')}<input id="c_n" value="${esc(c.name)}"></label><label>${t('phone')}<input id="c_p" type="tel" inputmode="tel" value="${esc(c.phone)}"></label><label>${t('address')}<input id="c_a" value="${esc(c.address)}"></label>
+  <div class="btns"><button class="btn ghost" onclick="closeM()">${t('cancel')}</button><button class="btn" onclick="saveC(${id||0})">${t('save')}</button></div>`);
+}
+function saveC(id){
+  const n=$('#c_n').value.trim();if(!n)return $('#c_n').focus();
+  const o={name:n,phone:$('#c_p').value.trim(),address:$('#c_a').value.trim()};
+  if(id)Object.assign(S.customers.find(x=>x.id===id),o);else S.customers.push({id:uid(),...o});
+  save();closeM();render();toast(t('saved'));
+}
+function delC(id){ask(t('confirmDel'),()=>{S.customers=S.customers.filter(c=>c.id!==id);save();render()})}
+function custInvoice(id){const c=S.customers.find(x=>x.id===id);D={cust:c.name,phone:c.phone,addr:c.address,items:[],delivery:0};go('invoice')}
+
+/* ---------- COURIER SETTINGS ---------- */
+// field: [key, label, placeholder, isSecret]
+const COURIERS=[
+ {id:'steadfast',name:'Steadfast',req:['url','key','secret'],fields:[['url','API base URL / endpoint','https://portal.packzy.com/api/v1'],['key','API Key',''],['secret','Secret Key','',1]]},
+ {id:'pathao',name:'Pathao',req:['url','clientId','clientSecret','username','password'],fields:[['url','API base URL','https://api-hermes.pathao.com'],['clientId','Client ID',''],['clientSecret','Client Secret','',1],['username','Username / email',''],['password','Password','',1],['storeId','Store ID (optional)','']]},
+ {id:'redx',name:'RedX',req:['url','token'],fields:[['url','API base URL','https://openapi.redx.com.bd/v1.0.0-beta'],['token','Access token','',1]]},
+ {id:'custom',name:'Other courier',req:['label','url'],fields:[['label','Courier name',''],['url','Endpoint URL / link','https://'],['key','API key',''],['token','Token (optional)','',1],['username','Username (optional)',''],['password','Password (optional)','',1]]}
+];
+function isConf(id){
+  const c=S.couriers[id]||{},f=k=>String(c[k]||'').trim(),d=COURIERS.find(x=>x.id===id);
+  if(!d.req.every(f))return false;
+  return id==='custom'?!!(f('key')||f('token')):true;
+}
+function vCourierList(){
+  $('#main').innerHTML=`<div class="between"><h2>🚚 ${t('courierSettings')}</h2><button class="btn sm ghost" onclick="view=null;render()">‹</button></div><p class="mut">${t('courierHelp')}</p>
+  ${COURIERS.map(c=>{const ok=isConf(c.id);return`<div class="card between" onclick="openView('courier:${c.id}')"><div><b>${esc(courierName(c.id))}</b><div style="margin-top:3px"><span class="tag ${ok?'':'r'}">${ok?t('configured'):t('notConfigured')}</span></div></div><span class="btn sm ghost">${ok?t('edit'):t('setup')}</span></div>`}).join('')}`;
+}
+function vCourierEdit(id){
+  const d=COURIERS.find(x=>x.id===id);if(!d){view='courier';return vCourierList()}
+  const c=S.couriers[id]||{};
+  $('#main').innerHTML=`<div class="between"><h2>🚚 ${esc(courierName(id))}</h2><button class="btn sm ghost" onclick="view='courier';render()">‹</button></div>
+  <div class="card">${d.fields.map(([k,l,ph,sec])=>`<label>${l}${d.req.includes(k)?' *':''}<input id="cf_${k}" class="${sec?'secret':''}" type="${sec?'password':'text'}" autocomplete="off" autocapitalize="off" value="${esc(c[k]||'')}" placeholder="${esc(ph)}"></label>`).join('')}
+  <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" style="width:auto" onchange="document.querySelectorAll('.secret').forEach(i=>i.type=this.checked?'text':'password')"> ${t('showSecrets')}</label></div>
+  <div class="btns"><button class="btn warn" onclick="clearCourier('${id}')">${t('clear')}</button><button class="btn" onclick="saveCourier('${id}')">${t('save')}</button></div>`;
+}
+function saveCourier(id){
+  const d=COURIERS.find(x=>x.id===id),o={};d.fields.forEach(([k])=>o[k]=$('#cf_'+k).value.trim());
+  S.couriers[id]=o;save();toast(t('saved'));view='courier';render();
+}
+function clearCourier(id){ask(t('confirmDel'),()=>{delete S.couriers[id];save();view='courier';render()})}
+
+/* ---------- SETTINGS ---------- */
+function vMore(){
+  if(view==='sub')return vSub();
+  if(view==='courier')return vCourierList();
+  if(view&&view.indexOf('courier:')===0)return vCourierEdit(view.slice(8));
+  const s=subState(),nConf=COURIERS.filter(c=>isConf(c.id)).length;
+  $('#main').innerHTML=`<div class="card" onclick="openView('sub')"><div class="between"><div><div class="b">⭐ ${t('subscription')}</div><div class="mut">${planName(s.st==='free'?'free':s.plan)} · ${t(s.st==='free'?'free':s.st)}${s.st==='active'?` · ${s.left} ${t('daysLeft')}`:''}${PENDING()?' · ⏳ '+t('pending'):''}</div></div><span>›</span></div></div>
+  <div class="card" onclick="openView('courier')"><div class="between"><div><div class="b">🚚 ${t('courierSettings')}</div><div class="mut">${nConf}/${COURIERS.length} ${t('configured')}</div></div><span>›</span></div></div>
+  <div class="card" onclick="openProfile()"><div class="between"><div class="between" style="gap:10px;justify-content:flex-start"><div class="avatar">${avatarInner(S.biz.logo,S.biz.name)}</div><div><div class="b">${esc(S.biz.name||t('profile'))}</div><div class="mut">${esc(S.biz.phone||'')}</div></div></div><span>›</span></div></div>
+  <div class="card"><div class="b">${t('language')}</div><div class="chips" style="margin:8px 0 0"><button class="chip ${S.lang==='en'?'on':''}" onclick="S.lang='en';save();render()">English</button><button class="chip ${S.lang==='bn'?'on':''}" onclick="S.lang='bn';save();render()">বাংলা</button></div></div>
+  <div class="card"><label style="margin-top:0">${t('targetMargin')}<input type="number" inputmode="decimal" value="${S.margin}" onchange="S.margin=+this.value||0;save()"></label></div>
+  <div class="card"><div class="b">${t('categories')}</div><div class="chips" style="flex-wrap:wrap;margin-top:8px">${S.cats.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
+  <div class="row" style="margin-top:6px"><input id="nc" placeholder="${t('addCat')}"><button class="btn" style="flex:0 0 auto" onclick="addCat()">＋</button></div></div>
+  <p class="mut" style="text-align:center">${t('backup')}</p>`;
+}
+function addCat(){const v=$('#nc').value.trim();if(v&&!S.cats.includes(v)){S.cats.push(v);save();render()}}
+
+/* ---------- SUBSCRIPTION SCREEN ---------- */
+function vSub(){
+  const s=subState(),r=S.req,pend=PENDING(),dst=s.st==='free'?'free':s.st;
+  const card=(k,price,per)=>{
+    const isCur=(k==='free'&&s.st!=='active')||(k===s.plan&&s.st==='active');let act='';
+    if(isCur)act=`<span class="tag">${t('current')}</span>`;
+    else if(k!=='free'){
+      if(pend)act=r.plan===k?`<span class="tag" style="background:var(--amb);color:#3a2900">⏳ ${t('pending')}</span>`:`<button class="btn sm ghost" disabled style="opacity:.5">${t('choose')}</button>`;
+      else act=`<button class="btn sm amb" onclick="payForm('${k}')">${k===s.plan?t('renew'):t('choose')}</button>`;
+    }
+    return`<div class="card plan ${isCur?'cur':''}"><div class="between"><div><div class="b">${planName(k)}</div><div>${price?money(price)+' '+per:t('free')}</div></div>${act}</div></div>`;
+  };
+  const feat=p=>p==='pro'?[t('unlimited'),t('unlimited'),t('all'),'✓']:[LIM.products,LIM.invoices,t('d30'),'—'];
+  $('#main').innerHTML=`<div class="between"><h2>⭐ ${t('subscription')}</h2><button class="btn sm ghost" onclick="view=null;render()">‹</button></div>
+  <div class="card"><div class="mut">${t('status')}</div><div class="b" style="font-size:18px">${planName(s.st==='free'?'free':s.plan)} · <span class="${s.st==='expired'?'red':'ok'}">${t(dst)}</span></div>
+  ${s.st!=='free'?`<div class="mut">${t('expires')}: ${fdate(S.sub.expiry)}${s.st==='active'?` (${s.left} ${t('daysLeft')})`:''}</div>`:''}</div>
+  ${pend?`<div class="card" style="background:#fff6dd;border-color:var(--amb)"><div class="b">⏳ ${t('pendingTitle')}: ${planName(r.plan)}</div><div class="mut">${t('pendingBody')}<br>TrxID: ${esc(r.trx||'')}${r.synced===false?`<br><span class="red">${t('notSent')}</span>`:''}</div><div class="btns"><button class="btn sm" onclick="syncSub()">↻ ${t('checkStatus')}</button></div></div>`:''}
+  ${r&&r.status==='rejected'?`<div class="card low"><div class="b red">${t('rejected')}</div><div class="mut">${t('rejectedBody')}${r.note?'<br>'+esc(r.note):''}</div></div>`:''}
+  ${card('free',0)}${card('monthly',PLANS.monthly.price,t('perMonth'))}${card('yearly',PLANS.yearly.price,t('perYear'))}
+  <div class="card"><div class="b">${t('feat')}</div><table><tr><th></th><th>${t('free')}</th><th>${t('proPlan')}</th></tr>${[t('f1'),t('f2'),t('f3'),t('f4')].map((n,i)=>`<tr><td>${n}</td><td>${feat('free')[i]}</td><td>${feat('pro')[i]}</td></tr>`).join('')}</table></div>
+  <div class="btns" style="margin-bottom:8px"><button class="btn ghost" onclick="syncSub()">↻ ${t('checkStatus')}</button></div>
+  <p class="mut" style="word-break:break-all">${t('loginNumber')}: <b>${esc(S.acct?S.acct.phone:'')}</b>${S.multi?' · '+t('multiOn'):''}<br>${t('deviceNote')}${S.syncInfo?`<br>↻ ${new Date(S.syncInfo.ts).toLocaleTimeString()} — <span class="${S.syncInfo.ok?'ok':'red'}">${esc(S.syncInfo.msg)}</span>`:''}${CFG.SUPPORT_PHONE?` · ${t('support')}: <a href="tel:${esc(CFG.SUPPORT_PHONE)}" style="color:var(--pri)">${esc(CFG.SUPPORT_PHONE)}</a>`:''}</p>`;
+}
+function payForm(plan){
+  if(PENDING())return toast(t('pendingExists'));
+  const price=PLANS[plan].price,methods=CFG.PAYMENT_METHODS||['bKash'],nums=CFG.PAYMENT_NUMBERS||{};
+  modal(`<h3>${planName(plan)} — ${money(price)}</h3>
+  <div class="card" style="background:var(--pri2)"><div class="mut">${t('payTo')} (${esc(CFG.PAYMENT_ACCOUNT_TYPE||'Personal')})</div><div class="between"><b id="p_num" style="font-size:21px">${esc(nums[methods[0]]||'')}</b><button class="btn sm" onclick="copyNum()">${t('copy')}</button></div><div class="mut">${t('sendExact')} <b>${money(price)}</b></div></div>
+  <label>${t('method')}<select id="p_m" onchange="payMethod()">${methods.map(m=>`<option>${esc(m)}</option>`).join('')}</select></label>
+  <label>${t('yourNumber')}<input id="p_s" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" value="${esc(S.acct?S.acct.phone:'')}"></label>
+  <label>${t('trxId')}<input id="p_t" autocapitalize="characters" autocomplete="off" placeholder="ABC123XYZ"></label>
+  <label>${t('amountSent')} ৳<input id="p_a" type="number" inputmode="decimal" value="${price}"></label>
+  <label>${t('reference')}<input id="p_r" value="${esc(S.biz.name)}"></label>
+  <p class="mut">${t('payNote')}</p>
+  <div class="btns"><button class="btn ghost" onclick="closeM()">${t('cancel')}</button><button class="btn amb" id="p_btn" onclick="submitPay('${plan}')">${t('submitPay')}</button></div>`);
+}
+function payMethod(){$('#p_num').textContent=(CFG.PAYMENT_NUMBERS||{})[$('#p_m').value]||''}
+function copyNum(){const n=$('#p_num').textContent;const ta=document.createElement('textarea');ta.value=n;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();toast(t('copied'))}
+async function submitPay(plan){
+  const g=i=>$('#p_'+i).value.trim();
+  const sender=g('s').replace(/[\s-]/g,'').replace(/^\+?88/,'');if(!/^01[3-9]\d{8}$/.test(sender))return toast(t('invalidNumber'));
+  const trx=g('t').toUpperCase();if(!/^[A-Z0-9]{6,30}$/.test(trx))return toast(t('invalidTrx'));
+  const amount=parseFloat(g('a'));if(!(amount>0))return toast(t('invalidAmt'));
+  const r={plan,amount,method:g('m'),sender,trx,reference:g('r'),status:'pending',synced:false,ts:Date.now()};
+  const b=$('#p_btn');b.disabled=true;
+  try{await pushReq(r);S.req=r;save();closeM();render();toast(t('pendingMsg'));syncSub(true)}
+  catch(e){
+    b.disabled=false;
+    if(/session_invalid/.test(e.message))return forceLogout('errSession');
+    if(e.message==='network'){S.req=r;save();closeM();render();toast(t('netSaved'))} // kept as Pending, sent when online
+    else toast(errMsg(e));
+  }
+}
+
+primeLogo();render();
+if(!logged())showAuth('');else{if(!S.biz.name)profileForm(true);syncSub(true)}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSub(true)});
+setInterval(()=>{if(!document.hidden)syncSub(true)},45000);
+</script>
+</body>
+</html>
